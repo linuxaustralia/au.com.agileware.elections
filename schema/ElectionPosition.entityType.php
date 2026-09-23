@@ -112,6 +112,19 @@ return [
         'on_delete' => 'CASCADE',
       ],
     ],
+    'counting_method' => [
+      'title' => E::ts('Counting Method'),
+      'sql_type' => 'varchar(32)',
+      'input_type' => 'Select',
+      'required' => TRUE,
+      'description' => E::ts('Method used to count votes for this position.'),
+      'add' => '6.16',
+      'default' => 'irv',
+      'pseudoconstant' => [
+        'callback' => 'CRM_Elections_BAO_ElectionPosition::getCountingMethods',
+      ],
+      'usage' => ['export'],
+    ],
     'result_status' => [
       'title' => E::ts('Result Status'),
       'sql_type' => 'varchar(255)',
