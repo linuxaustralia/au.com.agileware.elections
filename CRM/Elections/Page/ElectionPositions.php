@@ -40,6 +40,7 @@ class CRM_Elections_Page_ElectionPositions extends CRM_Elections_Page_Base {
     ]);
 
     $this->assign('positions', $electionPositions['values']);
+    $this->assign('countingMethods', CRM_Elections_BAO_ElectionPosition::getCountingMethods());
 
     parent::run();
   }

@@ -15,6 +15,11 @@
       <td>{$form.quantity.html}
 				<p class="description">{ts}Number of persons who are to be elected to the position{/ts}</p></td>
 		</tr>
+    <tr class="crm-create-election-position-form-block-counting-method">
+      <td class="label">{$form.counting_method.label}</td>
+      <td>{$form.counting_method.html}
+				<p class="description">{ts}How votes are counted. The Senate count is a proportional method suited to positions with more than one seat.{/ts}</p></td>
+		</tr>
     <tr class="crm-create-election-position-form-block-name">
       <td class="label">{$form.sortorder.label}</td>
       <td>{$form.sortorder.html}

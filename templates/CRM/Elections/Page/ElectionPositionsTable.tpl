@@ -5,6 +5,7 @@
         <th>#</th>
         <th>Name</th>
         <th>Seats</th>
+        <th>Counting</th>
         <th>Description</th>
         {if $isElectionAdmin and (!$isElectionRunning or !$election->is_visible)}
             <th></th>
@@ -21,6 +22,8 @@
             </td>
             <td>{$position.name}</td>
             <td>{$position.quantity}</td>
+            {assign var='countingMethod' value=$position.counting_method}
+            <td>{$countingMethods.$countingMethod}</td>
             <td>{$position.description|nl2br}</td>
             {if $isElectionAdmin and (!$isElectionRunning or !$election->is_visible)}
                 <td>
@@ -34,7 +37,7 @@
     {/foreach}
     {if empty($positions)}
         <tr class="even">
-            <td class="center" colspan="{if $isElectionAdmin and !$isElectionRunning}5{else}4{/if}">Positions are not added yet.</td>
+            <td class="center" colspan="{if $isElectionAdmin and !$isElectionRunning}6{else}5{/if}">Positions are not added yet.</td>
         </tr>
     {/if}
     </tbody>
