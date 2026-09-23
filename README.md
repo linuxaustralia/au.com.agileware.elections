@@ -4,7 +4,7 @@
 1. People can be nominated or nominate themselves for one or more of the advertised positions.
 1. Nominations can require one or more other people to second them before the nominee becomes an eligible candidate.
 1. People can vote for the nominees.
-1. Election results are calculated using the [instant-runoff voting (IRV) method](https://en.wikipedia.org/wiki/Instant-runoff_voting).
+1. Election results are calculated using the [instant-runoff voting (IRV) method](https://en.wikipedia.org/wiki/Instant-runoff_voting), or for each position can instead use the Australian Senate count, a proportional [single transferable vote (STV) method](https://en.wikipedia.org/wiki/Single_transferable_vote).
 1. Election results are then displayed and kept as a historical record.
 1. Multiple elections can be run concurrently.
 
