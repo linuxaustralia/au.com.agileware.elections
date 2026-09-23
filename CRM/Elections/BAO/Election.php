@@ -8,6 +8,8 @@ class CRM_Elections_BAO_Election extends CRM_Elections_DAO_Election {
   public static $RESULTS_MAJORITY  = 'majority';
   public static $RESULTS_NO_NOMINATIONS  = 'nonominations';
   public static $RESULTS_NO_MAJORITY = 'tie';
+  public static $RESULTS_SENATE = 'senate';
+  public static $RESULTS_SENATE_LOT = 'senatelot';
 
   public static function getResultStatues() {
     return [
@@ -16,6 +18,8 @@ class CRM_Elections_BAO_Election extends CRM_Elections_DAO_Election {
       'results_more_seats' => self::$RESULTS_MORE_SEATS,
       'results_majority' => self::$RESULTS_MAJORITY,
       'results_no_nominations' => self::$RESULTS_NO_NOMINATIONS,
+      'results_senate' => self::$RESULTS_SENATE,
+      'results_senate_lot' => self::$RESULTS_SENATE_LOT,
     ];
   }
 
