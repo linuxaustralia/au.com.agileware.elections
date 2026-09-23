@@ -259,9 +259,10 @@ class CRM_Elections_Helper_Results {
     $positions = $this->getPositions($electionId);
     foreach ($positions as $position) {
       $this->generateResultsForPosition($position, $electionId);
-      if ($anonymizeVotes == 1) {
-        $this->removeVotes($electionId);
-      }
+    }
+
+    if ($anonymizeVotes == 1) {
+      $this->removeVotes($electionId);
     }
 
     civicrm_api3('Election', 'create', [
