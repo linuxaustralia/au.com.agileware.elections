@@ -16,4 +16,15 @@ class CRM_Elections_Upgrader extends CRM_Extension_Upgrader_Base {
     CRM_Core_DAO::executeQuery("ALTER TABLE `civicrm_election` ADD COLUMN `allow_checksum_access` TINYINT DEFAULT 0");
     return TRUE;
   }
+
+  /**
+   * Version 1.4.0
+   *
+   * - Counting method per position
+   */
+  public function upgrade_10400() {
+    $this->ctx->log->info('Applying update 10400');
+    CRM_Core_DAO::executeQuery("ALTER TABLE `civicrm_election_position` ADD COLUMN `counting_method` VARCHAR(32) NOT NULL DEFAULT 'irv'");
+    return TRUE;
+  }
 }

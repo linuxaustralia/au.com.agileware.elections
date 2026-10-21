@@ -493,6 +493,66 @@ class CRM_BAO_ElectionResultTest extends api_v3_ElectionBaseTestCase {
   }
 
   /**
+   * Test that a Senate count position elects a minority candidate with a quota.
+   */
+  public function testSenateCountForPositionWithMultipleSeats() {
+    $this->electionPosition = $this->createElectionPosition($this->election, [
+      'quantity' => 2,
+      'counting_method' => CRM_Elections_BAO_ElectionPosition::$COUNTING_SENATE,
+    ]);
+    $this->election = $this->editElectionByState(api_v3_ElectionBaseTestCase::$ELECTION_NOMINATION_IN_PROGRESS, $this->election);
+    $members = $this->createNominationForResults($this->electionPosition['id'], 4, 4);
+    $firstCandidate  = $members['candidates'][0];
+    $secondCandidate = $members['candidates'][1];
+    $thirdCandidate  = $members['candidates'][2];
+    $fourthCandidate = $members['candidates'][3];
+
+    $voters = $this->getVoters(10);
+
+    $memberVotes = $voters['memberVotes'];
+    $voters = $voters['voters'];
+    $this->addMembersInElectionGroup($voters, $this->election);
+
+    $this->election = $this->editElectionByState(api_v3_ElectionBaseTestCase::$ELECTION_VOTING_IN_PROGRESS, $this->election);
+    for ($i = 0; $i < 6; $i++) {
+      $memberVotes[$voters[$i]][] = $this->recordVote(1, $firstCandidate['id']);
+      $memberVotes[$voters[$i]][] = $this->recordVote(2, $secondCandidate['id']);
+      $memberVotes[$voters[$i]][] = $this->recordVote(3, $thirdCandidate['id']);
+      $memberVotes[$voters[$i]][] = $this->recordVote(4, $fourthCandidate['id']);
+    }
+    for ($i = 6; $i < 9; $i++) {
+      $memberVotes[$voters[$i]][] = $this->recordVote(1, $thirdCandidate['id']);
+    }
+    $memberVotes[$voters[9]][] = $this->recordVote(1, $fourthCandidate['id']);
+    $memberVotes[$voters[9]][] = $this->recordVote(2, $thirdCandidate['id']);
+    $this->addMemberVotes($memberVotes);
+    $this->election = $this->generateElectionResults($this->election);
+    $this->assertElectionPositionStatus(CRM_Elections_BAO_Election::$RESULTS_SENATE);
+
+    $this->assertRank($firstCandidate['id'], $this->electionPosition['id'], 1);
+    $this->assertRank($thirdCandidate['id'], $this->electionPosition['id'], 2);
+    $this->assertRank($secondCandidate['id'], $this->electionPosition['id'], 3);
+    $this->assertRank($fourthCandidate['id'], $this->electionPosition['id'], 4);
+  }
+
+  /**
+   * Test that a Senate count position with as many seats as candidates elects them all.
+   */
+  public function testSenateCountWithEqualCandidatesAndSeats() {
+    $this->electionPosition = $this->createElectionPosition($this->election, [
+      'quantity' => 2,
+      'counting_method' => CRM_Elections_BAO_ElectionPosition::$COUNTING_SENATE,
+    ]);
+    $this->election = $this->editElectionByState(api_v3_ElectionBaseTestCase::$ELECTION_NOMINATION_IN_PROGRESS, $this->election);
+    $members = $this->createNominationForResults($this->electionPosition['id'], 2, 2);
+    $this->election = $this->generateElectionResults($this->election);
+    $this->assertElectionPositionStatus(CRM_Elections_BAO_Election::$RESULTS_EQUAL_SEATS);
+    foreach ($members['candidates'] as $candidate) {
+      $this->assertRank($candidate['id'], $this->electionPosition['id'], 1);
+    }
+  }
+
+  /**
    * Test that votes are removed if anonymize_votes value is set in election.
    */
   public function testAnonymizeVotesInElection() {
@@ -528,6 +588,55 @@ class CRM_BAO_ElectionResultTest extends api_v3_ElectionBaseTestCase {
     ]);
 
     $this->assertEquals(0, $votesCount, 'Votes count should be zero.');
+  }
+
+  /**
+   * Test that anonymising votes does not affect counting of later positions.
+   */
+  public function testAnonymizeVotesWithMultiplePositions() {
+    $this->election['anonymize_votes'] = 1;
+    $this->callAPISuccess('Election', 'create', $this->election);
+
+    $firstPosition = $this->createElectionPosition($this->election);
+    $this->electionPosition = $this->createElectionPosition($this->election, [
+      'name' => 'Secretary',
+    ]);
+    $this->election = $this->editElectionByState(api_v3_ElectionBaseTestCase::$ELECTION_NOMINATION_IN_PROGRESS, $this->election);
+    $firstMembers = $this->createNominationForResults($firstPosition['id'], 1, 1);
+    $members = $this->createNominationForResults($this->electionPosition['id'], 3, 3);
+    $firstCandidate  = $firstMembers['candidates'][0];
+    $winnerCandidate = $members['candidates'][0];
+    $secondCandidate = $members['candidates'][1];
+    $thirdCandidate  = $members['candidates'][2];
+
+    $voters = $this->getVoters(9);
+
+    $memberVotes = $voters['memberVotes'];
+    $voters = $voters['voters'];
+    $this->addMembersInElectionGroup($voters, $this->election);
+
+    $this->election = $this->editElectionByState(api_v3_ElectionBaseTestCase::$ELECTION_VOTING_IN_PROGRESS, $this->election);
+    for ($i = 0; $i < 9; $i++) {
+      $memberVotes[$voters[$i]][] = $this->recordVote(1, $firstCandidate['id']);
+    }
+    for ($i = 0; $i < 3; $i++) {
+      $memberVotes[$voters[$i]][] = $this->recordVote(1, $winnerCandidate['id']);
+    }
+    for ($i = 3; $i < 7; $i++) {
+      $memberVotes[$voters[$i]][] = $this->recordVote(1, $secondCandidate['id']);
+    }
+    for ($i = 7; $i < 9; $i++) {
+      $memberVotes[$voters[$i]][] = $this->recordVote(1, $thirdCandidate['id']);
+      $memberVotes[$voters[$i]][] = $this->recordVote(2, $winnerCandidate['id']);
+    }
+    $this->addMemberVotes($memberVotes);
+    $this->election = $this->generateElectionResults($this->election);
+
+    // Both of the third candidate's votes must transfer for the winner to reach a majority.
+    $this->assertElectionPositionStatus(CRM_Elections_BAO_Election::$RESULTS_MAJORITY);
+    $this->assertRank($winnerCandidate['id'], $this->electionPosition['id'], 1);
+    $this->assertRank($secondCandidate['id'], $this->electionPosition['id'], 2);
+    $this->assertRank($thirdCandidate['id'], $this->electionPosition['id'], 3);
   }
 
   /**

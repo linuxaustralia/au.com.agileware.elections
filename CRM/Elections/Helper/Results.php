@@ -39,7 +39,12 @@ class CRM_Elections_Helper_Results {
       $resultStatus = CRM_Elections_BAO_Election::$RESULTS_NO_NOMINATIONS;
     }
     else {
-      $results = $this->generateResultsForNominations($nominations, $seats);
+      if (($position['counting_method'] ?? NULL) == CRM_Elections_BAO_ElectionPosition::$COUNTING_SENATE) {
+        $results = $this->generateSenateResults($nominations, $seats);
+      }
+      else {
+        $results = $this->generateResultsForNominations($nominations, $seats);
+      }
 
       $resultStatus = $results['status'];
       $candidateRanks = $results['candidateranks'];
@@ -255,13 +260,40 @@ class CRM_Elections_Helper_Results {
     return $positionResults;
   }
 
+  private function generateSenateResults($nominations, $seats) {
+    if ($seats >= count($nominations)) {
+      return $this->generateResultsForNominations($nominations, $seats);
+    }
+
+    $ballots = [];
+    foreach ($this->getVotesByNominationIds(array_keys($nominations)) as $vote) {
+      $ballots[$vote['member_id']][$vote['rank']] = $vote['election_nomination_id'];
+    }
+
+    $count = new CRM_Elections_Helper_SenateCount($seats, array_keys($nominations), $ballots);
+    $result = $count->run();
+
+    // Winners first, then candidates still in the count, then excluded candidates, last excluded first.
+    $candidateRanks = [];
+    $rank = 1;
+    foreach (array_merge($result['elected'], $result['continuing'], array_reverse($result['excluded'])) as $nominationId) {
+      $candidateRanks[$nominationId] = $rank++;
+    }
+
+    return [
+      'status' => $result['tie_by_lot'] ? CRM_Elections_BAO_Election::$RESULTS_SENATE_LOT : CRM_Elections_BAO_Election::$RESULTS_SENATE,
+      'candidateranks' => $candidateRanks,
+    ];
+  }
+
   public function generateResult($electionId, $anonymizeVotes) {
     $positions = $this->getPositions($electionId);
     foreach ($positions as $position) {
       $this->generateResultsForPosition($position, $electionId);
-      if ($anonymizeVotes == 1) {
-        $this->removeVotes($electionId);
-      }
+    }
+
+    if ($anonymizeVotes == 1) {
+      $this->removeVotes($electionId);
     }
 
     civicrm_api3('Election', 'create', [

@@ -13,7 +13,7 @@ flowchart TD
     C --> D["Nominations<br/>Nomination Start Date to Nomination End Date<br/>People nominate, and second, candidates for each position"]
     D --> E["Advertise Candidates<br/>Advertise Candidates Date to Voting Start Date<br/>Eligible candidates accept or withdraw their nomination"]
     E --> F["Voting<br/>Voting Start Date to Voting End Date<br/>Permitted members rank the candidates for each position"]
-    F --> G["Results<br/>from Results Start Date<br/>Results are calculated using Instant-Runoff Voting and published"]
+    F --> G["Results<br/>from Results Start Date<br/>Results are calculated using each position's counting method and published"]
     G --> H["Hidden<br/>after Visible End Date<br/>Election is removed from the website, results remain as a historical record"]
 ```
 
@@ -133,5 +133,8 @@ For more information, see [How to vote](user_vote.md)
 # Results  
 
 Results are published after the **Results Start Date**. Elections results are then available on the website, see example [election results](user_view_results.md)  
-Election results are calculated using the Instant-runoff voting (IRV) method, see https://en.wikipedia.org/wiki/Instant-runoff_voting
+Election results are calculated using each position's counting method:
+
+- **Instant-runoff (IRV)**: the default, see https://en.wikipedia.org/wiki/Instant-runoff_voting
+- **Senate count (STV)**: the proportional single transferable vote count used for the Australian Senate, see https://en.wikipedia.org/wiki/Single_transferable_vote. A candidate is elected on reaching a quota of votes, and surplus votes and the votes of excluded candidates pass to voters' next preferences. It is suited to positions with more than one seat.
   

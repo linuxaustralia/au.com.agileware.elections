@@ -3,6 +3,16 @@ use CRM_Elections_ExtensionUtil as E;
 
 class CRM_Elections_BAO_ElectionPosition extends CRM_Elections_DAO_ElectionPosition {
 
+  public static $COUNTING_IRV = 'irv';
+  public static $COUNTING_SENATE = 'senate';
+
+  public static function getCountingMethods() {
+    return [
+      self::$COUNTING_IRV => E::ts('Instant-runoff (IRV)'),
+      self::$COUNTING_SENATE => E::ts('Senate count (STV)'),
+    ];
+  }
+
   public static function findWithNominationsByElectionId($electionId) {
     $nominations = civicrm_api3('ElectionNomination', 'get', [
       'election_position_id.election_id'  => $electionId,

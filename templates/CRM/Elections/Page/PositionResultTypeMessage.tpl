@@ -14,6 +14,14 @@
     <p>Not all seats were filled for this position.</p>
 {/if}
 
+{if $position.result_status == $resultStatuses.results_senate}
+    <p>Elected by Senate count (proportional single transferable vote).</p>
+{/if}
+
+{if $position.result_status == $resultStatuses.results_senate_lot}
+    <p>Elected by Senate count (proportional single transferable vote). A tie was broken by random draw.</p>
+{/if}
+
 {if $position.result_status == $resultStatuses.results_equal_seats}
     <p>The number of candidates remaining equals the number of position holders. These candidates are the winners.</p>
 {/if}

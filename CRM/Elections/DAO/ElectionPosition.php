@@ -18,6 +18,7 @@
  * @property string $election_id
  * @property string $created_by
  * @property string $result_status
+ * @property string $counting_method
  */
 class CRM_Elections_DAO_ElectionPosition extends CRM_Elections_DAO_Base {
 

@@ -44,6 +44,7 @@ class CRM_Elections_Form_CreateElectionPosition extends CRM_Elections_Form_Base 
 
   public function setDefaultValues() {
     $default = parent::setDefaultValues();
+    $default['counting_method'] = CRM_Elections_BAO_ElectionPosition::$COUNTING_IRV;
     if ($this->epId) {
       $this->electionPosition = civicrm_api3('ElectionPosition', 'get', [
         'id'         => $this->epId,
@@ -58,6 +59,7 @@ class CRM_Elections_Form_CreateElectionPosition extends CRM_Elections_Form_Base 
         $default['name']          = $this->electionPosition['name'];
         $default['quantity']      = $this->electionPosition['quantity'];
         $default['sortorder']     = $this->electionPosition['sortorder'];
+        $default['counting_method'] = $this->electionPosition['counting_method'];
         $default['description']   = (!empty($this->electionPosition['description'])) ? $this->electionPosition['description'] : '';
 
         CRM_Utils_System::setTitle('Edit Election Position for ' . $this->electionPosition['name']);
@@ -77,6 +79,7 @@ class CRM_Elections_Form_CreateElectionPosition extends CRM_Elections_Form_Base 
     $this->add('text', 'name', 'Name', ['size' => 35], TRUE);
     $this->add('text', 'quantity', 'Seats', ['size' => 15], TRUE);
     $this->add('text', 'sortorder', 'Order', ['size' => 15], TRUE);
+    $this->add('select', 'counting_method', E::ts('Counting method'), CRM_Elections_BAO_ElectionPosition::getCountingMethods(), TRUE);
     $this->add('textarea', 'description', 'Description', ['cols' => 55, 'rows' => 6], FALSE);
     $this->addElement('hidden', 'eid', $this->eId);
     $this->addElement('hidden', 'epid', $this->epId);
@@ -102,6 +105,10 @@ class CRM_Elections_Form_CreateElectionPosition extends CRM_Elections_Form_Base 
       $this->_errors['sortorder'] = 'Rank must be a valid positive integer.';
     }
 
+    if (!array_key_exists($values['counting_method'], CRM_Elections_BAO_ElectionPosition::getCountingMethods())) {
+      $this->_errors['counting_method'] = 'Counting method is not valid.';
+    }
+
     return parent::validate();
   }
 
@@ -113,6 +120,7 @@ class CRM_Elections_Form_CreateElectionPosition extends CRM_Elections_Form_Base 
       'name'         => $values['name'],
       'quantity'     => $values['quantity'],
       'sortorder'    => $values['sortorder'],
+      'counting_method' => $values['counting_method'],
       'description'  => $values['description'],
       'election_id'  => $this->eId,
       'created_by'   => CRM_Core_Session::singleton()->getLoggedInContactID(),
